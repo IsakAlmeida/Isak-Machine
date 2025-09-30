@@ -1,0 +1,295 @@
+<!DOCTYPE html> 
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isak's Machine</title>
+
+    <style>
+        /* estilo do corpo da página */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            font-size: 25px;
+        }
+
+        /* estilo para a introdução */
+        #introducao { 
+            width: 80%;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        /* título principal */
+        h1 { 
+            color: #122e53;
+            font-size: 45px;
+        }
+
+        /* subtítulos */
+        h3, h4 { 
+            color: #122e53;
+        }
+
+        /* estilo para inputs, selects e botões */
+        select, button, input[type="text"] { 
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* botões */
+        button { 
+            background-color: #122e53;
+            color: #FFFFFF;
+            border: none;
+        }
+
+        /* efeito de hover no botão */
+        button:hover { 
+            background-color: #5e88a8;
+        }
+
+        /* saídas de resultado da conversão e do calculo*/
+        #output, #outputCalc { 
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #bfd1e2;
+            border: 1px solid black;
+            text-align: left;
+            display: none;
+        }
+
+        #inputValue, #iptNum1, #iptNum2 { /* inputs para inserir os números */
+            background-color: #5e88a8;
+            color: #FFFFFF;
+        }
+
+        input::placeholder { /* cor do texto do placeholder */
+            color: #FFFFFF;
+            text-align: center;
+        }
+
+        /* conteudo dos blocos*/
+        .conteudo {
+            display: flex;
+            flex-direction: column;    
+            justify-self: center;
+            gap: 30px;                 
+            margin-top: 30px;
+            padding-bottom: 30px;
+        }
+
+        /* blocos de conversão e cálculo */
+        .conversao, .calculo { 
+            flex: 1;        
+            padding: 20px;
+            border: 2px solid #122e53;
+            border-radius: 10px;
+            background-color: #f8f9fb;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- introdução com título e texto inicial -->
+    <div id="introducao">
+        <h1>Isak's Machine</h1>
+        Sejam muito bem vindos à máquina de conversão do Isak! <br>
+        Aqui você pode converter valores entre bases numéricas e também realizar operações matemáticas. <br><br>
+        Bons estudos!
+        <br><br>
+    </div>
+
+    <!-- div com dois blocos, conversão e cálculo -->
+    <div class="conteudo">
+
+        <!-- conversão -->
+        <div class="conversao">
+            <h3>Conversão</h3>
+            <!-- input para digitar o número -->
+            <input id="inputValue" type="text" placeholder="Digite o valor">
+            
+            <!-- seleciona a base do número digitado -->
+            <select id="inputBase">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="decimal">Decimal</option>
+                <option value="hexadecimal">Hexadecimal</option>
+                <option value="octal">Octal</option>
+                <option value="binario">Binário</option>
+            </select>
+            <br><br>
+
+            <h4>Converter para:</h4>
+            <!-- checkboxes para escolher para quais bases converter -->
+            <input type="checkbox" id="convertDecimal"><label for="convertDecimal">Decimal</label>
+            <input type="checkbox" id="convertHexadecimal"><label for="convertHexadecimal">Hexadecimal</label>
+            <input type="checkbox" id="convertOctal"><label for="convertOctal">Octal</label>
+            <input type="checkbox" id="convertBinario"><label for="convertBinario">Binário</label>
+            <br><br>
+
+            <!-- botão para iniciar a conversão e limpar as entradas-->
+            <button onclick="converter()">Converter</button> 
+            <button onclick="limparConv()">Limpar</button>
+
+            <!-- div onde aparecem os resultados da conversão -->
+            <div id="output"></div>
+        </div>
+
+        <br><br>
+
+        <!-- CALCULO -->
+        <div class="calculo">
+            <h3>Cálculo</h3>
+            <!-- inputs para receber os dois números -->
+            <input id="iptNum1" type="text" placeholder="Número 1"> <br><br>
+            <input id="iptNum2" type="text" placeholder="Número 2">
+            <br><br>
+
+            <!-- seleciona a base dos números -->
+            <select id="selCalcBase">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="decimal">Decimal</option>
+                <option value="hexadecimal">Hexadecimal</option>
+                <option value="octal">Octal</option>
+                <option value="binario">Binário</option>
+            </select>
+            <br><br>
+
+            <!-- seleciona a operação -->
+            <select id="selOperacao">
+                <option value="" disabled selected>Selecione...</option>
+                <option value="soma">+</option>
+                <option value="subtracao">-</option>
+                <option value="multiplicacao">*</option>
+                <option value="divisao">/</option>
+            </select>
+            <br><br>
+
+            <!-- botão de calcular e limpar as entradas-->
+            <button onclick="calcular()">Calcular</button>
+            <button onclick="limpaCalc()">Limpar</button>
+
+            <!-- div onde aparece o resultado do cálculo -->
+            <div id="outputCalc"></div>
+        </div>
+    </div>
+
+    <script>
+        // ----- FUNÇÃO CONVERSOR -----
+        function converter() {
+            // pega valor digitado e base escolhida
+            var inputValue = document.getElementById('inputValue').value;
+            var inputBase = document.getElementById('inputBase').value;
+
+            // verifica se o número é válido na base
+            if (!validarEntrada(inputValue, inputBase)) {
+                alert('Por favor, insira um número válido para a base selecionada.');
+                return;
+            }
+
+            // converte o valor para decimal
+            var decimalValue = parseInt(inputValue, inputBase === 'hexadecimal' ? 16 : inputBase === 'octal' ? 8 : inputBase === 'binario' ? 2 : 10);
+            var outputHTML = `Convertendo o valor ${inputValue} (${inputBase}):<br>`;
+
+            // verifica quais checkboxes foram marcados e mostra as conversões
+            if (document.getElementById('convertDecimal').checked) {
+                outputHTML += `<p>Decimal: ${decimalValue}</p>`;
+            }
+            if (document.getElementById('convertHexadecimal').checked) {
+                outputHTML += `<p>Hexadecimal: ${decimalValue.toString(16).toUpperCase()}</p>`;
+            }
+            if (document.getElementById('convertOctal').checked) {
+                outputHTML += `<p>Octal: ${decimalValue.toString(8)}</p>`;
+            }
+            if (document.getElementById('convertBinario').checked) {
+                outputHTML += `<p>Binário: ${decimalValue.toString(2)}</p>`;
+            }
+
+            // exibe resultado na tela
+            var output = document.getElementById('output');
+            output.style.display = 'block';
+            output.innerHTML = outputHTML;
+        }
+
+        //  FUNÇÃO CÁLCULO 
+        function calcular() {
+            // pega os valores digitados
+            var num1 = document.getElementById('iptNum1').value;
+            var num2 = document.getElementById('iptNum2').value;
+            var base = document.getElementById('selCalcBase').value;
+            var operacao = document.getElementById('selOperacao').value;
+
+            // valida os dois números
+            if (!validarEntrada(num1, base) || !validarEntrada(num2, base)) {
+                alert('Por favor, insira números válidos na base selecionada.');
+                return;
+            }
+
+            // converte os dois números para decimal
+            var n1 = parseInt(num1, base === 'hexadecimal' ? 16 : base === 'octal' ? 8 : base === 'binario' ? 2 : 10);
+            var n2 = parseInt(num2, base === 'hexadecimal' ? 16 : base === 'octal' ? 8 : base === 'binario' ? 2 : 10);
+            var resultado;
+
+            // executa a operação marcada
+            if (operacao === "soma") resultado = n1 + n2;
+            else if (operacao === "subtracao") resultado = n1 - n2;
+            else if (operacao === "multiplicacao") resultado = n1 * n2;
+            else if (operacao === "divisao") {
+                if (n2 === 0) {
+                    alert("Divisão por zero não é permitida!");
+                    return;
+                }
+                resultado = n1 / n2;
+            }
+
+            // exibe resultado em todas as bases
+            var outputHTML = `Resultado da operação (${num1} e ${num2} em ${base}):<br>`;
+            outputHTML += `<p>Decimal: ${resultado}</p>`;
+            outputHTML += `<p>Hexadecimal: ${resultado.toString(16).toUpperCase()}</p>`;
+            outputHTML += `<p>Octal: ${resultado.toString(8)}</p>`;
+            outputHTML += `<p>Binário: ${resultado.toString(2)}</p>`;
+
+            var outputCalc = document.getElementById('outputCalc');
+            outputCalc.style.display = 'block';
+            outputCalc.innerHTML = outputHTML;
+        }
+
+        //  FUNÇÃO DE VALIDAÇÃO 
+        function validarEntrada(inputValue, inputBase) {
+            var validChars = '';
+            // define quais caracteres são válidos para cada base
+            if (inputBase === 'decimal') validChars = '0123456789';
+            else if (inputBase === 'hexadecimal') validChars = '0123456789ABCDEFabcdef';
+            else if (inputBase === 'octal') validChars = '01234567';
+            else if (inputBase === 'binario') validChars = '01';
+
+            // percorre cada caractere do número e verifica se é válido
+            for (var i = 0; i < inputValue.length; i++) {
+                if (validChars.indexOf(inputValue[i]) === -1) return false;
+            }
+            return true; // retorna true se tudo for válido
+        }
+
+        // FUNÇÃO DE LIMPAR AS ENTRADAS DO BLOCO CONVERSÃO 
+        function limparConv(){
+            inputBase.value = "";
+            inputValue.value = "";
+
+        }
+
+        //  FUNÇÃO DE LIMPAR AS ENTRADAS DO BLOCO CÁLCULO 
+        function limpaCalc(){
+            iptNum1.value ="";
+            iptNum2.value="";
+            selCalcBase.value = "";
+            selOperacao.value = "";
+        }
+    </script>
+</body>
+</html>
